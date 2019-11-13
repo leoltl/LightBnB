@@ -1,0 +1,1 @@
+select AVG(end_date - start_date) from reservations;
