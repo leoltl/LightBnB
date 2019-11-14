@@ -1,4 +1,3 @@
-const database = require('./db');
 const apiRoutes = require('./apiRoutes');
 const userRoutes = require('./userRoutes');
 
@@ -10,15 +9,6 @@ const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 
 const app = express();
-
-const pool = new Pool({
-  host: 'localhost',
-  username: 'vagrant',
-  password: '123',
-  database: 'lightbnb'
-});
-pool.connect();
-
 app.use(cookieSession({
   name: 'session',
   keys: ['key1']
@@ -27,14 +17,23 @@ app.use(cookieSession({
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// setup database connecton
+const dbConnection = new Pool({
+  host: 'localhost',
+  username: 'vagrant',
+  password: '123',
+  database: 'lightbnb'
+});
+dbConnection.connect();
+
 // /api/endpoints
 const apiRouter = express.Router();
-apiRoutes(apiRouter, database(pool));
+apiRoutes(apiRouter, dbConnection);
 app.use('/api', apiRouter);
 
 // /user/endpoints
 const userRouter = express.Router();
-userRoutes(userRouter, database(pool));
+userRoutes(userRouter, dbConnection);
 app.use('/users', userRouter);
 
 app.use(express.static(path.join(__dirname, '../public')));
